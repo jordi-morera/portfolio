@@ -1,0 +1,44 @@
+---
+import '../styles/global.css';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title, description = site.tagline } = Astro.props;
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.role}`;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-stone-50 text-stone-800 antialiased dark:bg-stone-950 dark:text-stone-200">
+    <header class="sticky top-0 z-10 border-b border-stone-200/70 bg-stone-50/80 backdrop-blur dark:border-stone-800 dark:bg-stone-950/80">
+      <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
+        <a href="/" class="font-semibold tracking-tight">{site.name}</a>
+        <div class="flex gap-5 text-sm text-stone-600 dark:text-stone-400">
+          <a href="/#projects" class="hover:text-accent-600 dark:hover:text-accent-400">Projects</a>
+          <a href="/#about" class="hover:text-accent-600 dark:hover:text-accent-400">About</a>
+          <a href={site.github} target="_blank" rel="noopener" class="hover:text-accent-600 dark:hover:text-accent-400">GitHub</a>
+        </div>
+      </nav>
+    </header>
+    <main class="mx-auto max-w-5xl px-4 sm:px-6">
+      <slot />
+    </main>
+    <footer class="mx-auto mt-24 max-w-5xl border-t border-stone-200 px-4 py-8 text-sm text-stone-500 sm:px-6 dark:border-stone-800">
+      © {new Date().getFullYear()} {site.name} · {site.location} · Built with Astro + Tailwind CSS
+    </footer>
+  </body>
+</html>
