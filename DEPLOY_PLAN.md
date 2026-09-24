@@ -4,31 +4,35 @@ Objetivo: que cada ficha del portfolio tenga un botón **Live demo** que funcion
 
 | # | Proyecto | Dónde | Tipo de demo | Esfuerzo |
 |---|----------|-------|--------------|----------|
-| 0 | **Portfolio** (este repo) | Vercel | Estático (Astro) | 10 min |
-| 1 | Emotional Wellness Tracker (`aws-project`) | Vercel | Real (todo en el navegador) | 10 min |
-| 2 | Diario Reflexivo | Vercel (solo frontend) | Mock: respuestas de Claude pregrabadas | 1–2 h |
-| 3 | Harbor | Vercel (solo `frontend/web`) | Mock: conversación guionizada | 2–3 h |
-| 4 | Calma (TFM) | Vercel | Real, con cuenta demo en Cognito + DynamoDB (free tier AWS) | 1–2 h |
-| 5 | My To-Do List App | Render (Docker, free) | Real (H2 en memoria) | 30 min |
-| 6 | Book Service | Render (Docker, free) | Real, entra directo a Swagger UI | 30 min |
+| 0 | **Portfolio** (este repo) | AWS S3 + CloudFront | Estático (Astro) | 1 h |
+| 1 | Diario Reflexivo | Vercel (solo frontend) | Mock: respuestas de Claude pregrabadas | 1–2 h |
+| 2 | Harbor | Vercel (solo `frontend/web`) | Mock: conversación guionizada | 2–3 h |
+| 3 | Calma (TFM) | Vercel | Real, con cuenta demo en Cognito + DynamoDB (free tier AWS) | 1–2 h |
+| 4 | My To-Do List App | Render (Docker, free) | Real (H2 en memoria) | 30 min |
+| 5 | Book Service | Render (Docker, free) | Real, entra directo a Swagger UI | 30 min |
 
-> Orden recomendado: 0 → 1 → 5 → 6 → 2 → 3 → 4. Primero lo que es "gratis de verdad" en tiempo, luego lo que requiere tocar código.
+> Orden recomendado: 0 → 4 → 5 → 1 → 2 → 3. Primero lo que es "gratis de verdad" en tiempo, luego lo que requiere tocar código.
 
 ---
 
-## 0. Portfolio → Vercel
-1. `git init && git add . && git commit -m "Initial portfolio"` y súbelo a GitHub (`jordimorerachamorro/portfolio`).
-2. En vercel.com → *Add New Project* → importa el repo. Vercel detecta Astro solo (build `astro build`, output `dist`).
-3. Cambia `site` en `astro.config.mjs` por tu URL final.
-4. Los README se descargan de GitHub **en cada build**. Para refrescarlos sin tocar código: Vercel → Settings → *Deploy Hooks* → crea uno y llámalo desde un GitHub Action (o simplemente *Redeploy*).
+## 0. Portfolio → S3 + CloudFront
+Es la web que ven los recruiters: que sea HTTPS. Un bucket S3 "website" a pelo solo sirve HTTP y Chrome lo marca como *No seguro*. Por eso: **S3 privado + CloudFront con OAC**.
 
-## 1. Wellness Tracker (`aws-project`) → Vercel
-- ⚠️ El repo **no tiene remoto ni commits** todavía. Créalo en GitHub (sugerencia: `emotional-wellness-tracker`) y sube el código.
-- Vercel detecta Vite. Build `npm run build`, output `dist`. Nada más: usa `localStorage`.
-- Luego en `src/data/projects.ts`: pon `repo`, `demoUrl` y `demoStatus: 'live'`.
-- Limpia del README la ruta local `/Users/jordimorera/...` (ya lo he hecho en la copia del portfolio).
+1. **Bucket** privado (bloqueo de acceso público activado). No actives "static website hosting".
+2. **CloudFront**: origen = el bucket con *Origin Access Control*; *Default root object* `index.html`; redirect HTTP→HTTPS. Acepta la bucket policy que te propone la consola.
+3. **CloudFront Function** (viewer request) con `infra/cloudfront-index-rewrite.js`. Sin ella, `/projects/calma/` da 403, porque CloudFront no busca `index.html` en subcarpetas.
+4. **Error pages**: 403 y 404 → `/404.html` (opcional, si añades `src/pages/404.astro`).
+5. Pon la URL de CloudFront (o tu dominio) en `site` de `astro.config.mjs`.
+6. Desplegar a mano: `./deploy.sh <bucket> <distribution-id>`.
+7. **CI (recomendado)**: `.github/workflows/deploy.yml` despliega en cada push a `main` y además cada lunes, para refrescar los README. Configura en GitHub:
+   - Secret `AWS_DEPLOY_ROLE_ARN`: rol IAM con *trust* al OIDC de GitHub (`token.actions.githubusercontent.com`), limitado a tu repo, y permisos solo sobre `s3:ListBucket/GetObject/PutObject/DeleteObject` del bucket y `cloudfront:CreateInvalidation` de la distribución.
+   - Variables `AWS_REGION`, `S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`.
+8. **Dominio propio (opcional)**: Route 53 o tu registrador + certificado ACM **en us-east-1** (obligatorio para CloudFront).
+9. **Coste**: con el tráfico de un portfolio, céntimos al mes (el dominio aparte). Pon igualmente una *AWS Budget alert* de 1–2 €.
 
-## 2. Diario Reflexivo → Vercel con modo demo
+> Extra: esto es tu primera experiencia *real* en AWS con S3, CloudFront, IAM/OIDC y CI/CD. Merece una ficha propia en el portfolio o una línea en el CV.
+
+## 1. Diario Reflexivo → Vercel con modo demo
 El backend necesita Claude + DynamoDB, así que para la demo pública se despliega **solo el frontend** con una API simulada.
 - Añade `VITE_DEMO_MODE=true` y, en `App.jsx`, si está activo, sustituye `fetch(API_BASE…)` por un pequeño `demoApi.js`:
   - `entries` guardadas en `localStorage`.
@@ -36,13 +40,13 @@ El backend necesita Claude + DynamoDB, así que para la demo pública se desplie
 - Muestra un banner: *"Demo mode — AI responses are pre-recorded. Run locally with your API key for live reflections."*
 - En Vercel: *Root Directory* = `frontend`, variable `VITE_DEMO_MODE=true`.
 
-## 3. Harbor → Vercel con modo demo
+## 2. Harbor → Vercel con modo demo
 Postgres + pgvector + Redis + Claude no caben en ningún free tier de forma fiable. Enseña el frontend con un guion:
 - En `frontend/web`, crea una ruta API de Next (`/api/demo-chat`) o un mock en cliente que devuelva respuestas pregrabadas **incluyendo los metadatos de cada capa** (riesgo detectado, estado emocional, estrategia elegida). Eso es lo que vende Harbor: que se vea la orquestación, no solo el texto.
 - Idea potente para recruiters: un panel lateral "Under the hood" que muestre qué decidió cada una de las 4 capas.
 - En Vercel: *Root Directory* = `frontend/web`.
 
-## 4. Calma → Vercel + AWS free tier
+## 3. Calma → Vercel + AWS free tier
 Ya tienes Cognito, DynamoDB y CDK. Cognito (hasta 10k MAU en el plan Lite/Essentials, revisa condiciones) y DynamoDB on-demand con tráfico de portfolio salen a coste ~0.
 - Despliega la infra con CDK (`infra/`) si no está ya.
 - Crea un **usuario demo** (`demo@calma.app` / contraseña pública) y publícalo en la ficha (`demoCredentials`).
@@ -50,7 +54,7 @@ Ya tienes Cognito, DynamoDB y CDK. Cognito (hasta 10k MAU en el plan Lite/Essent
 - Pon una *AWS Budget alert* a 1 € para dormir tranquilo.
 - Opcional: un cron semanal que limpie las entradas del diario del usuario demo.
 
-## 5 y 6. Spring Boot (To-Do y Book Service) → Render
+## 4 y 5. Spring Boot (To-Do y Book Service) → Render
 Vercel no ejecuta Java. Render tiene plan gratuito para web services con Docker; el servicio se duerme tras ~15 min sin tráfico y tarda ~1 min en despertar (ya lo avisa la ficha). Alternativa: Koyeb free (1 instancia, 512 MB).
 
 Añade este `Dockerfile` en la raíz de cada repo:

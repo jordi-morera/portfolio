@@ -16,4 +16,4 @@ npm run build    # genera dist/
 - `src/pages/projects/[slug].astro` — ficha: pitch + highlights + stack + demo + README.
 
 ## Despliegue
-Ver [`DEPLOY_PLAN.md`](DEPLOY_PLAN.md).
+AWS S3 + CloudFront: `./deploy.sh <bucket> [distribution-id]` o automático con GitHub Actions (`.github/workflows/deploy.yml`). Detalles y plan de las demos en [`DEPLOY_PLAN.md`](DEPLOY_PLAN.md).

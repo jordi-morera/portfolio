@@ -85,21 +85,6 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    slug: 'wellness-tracker',
-    name: 'Emotional Wellness Tracker',
-    tagline: 'Mood tracking with journaling, tags and visual analytics',
-    pitch:
-      'A lightweight React app to log daily mood (1–5), add notes and tags, and see trends over time. 100% client-side: data never leaves your browser.',
-    category: 'Frontend',
-    stack: ['React 19', 'TypeScript', 'Vite', 'CSS3', 'localStorage'],
-    highlights: ['Zero-backend, privacy by design', 'Responsive UI', 'Deployable as a static site'],
-    repo: null, // TODO: sube aws-project a GitHub y pon aquí 'jordimorerachamorro/<repo>'
-    branch: 'main',
-    demoUrl: null,
-    demoStatus: 'planned',
-    demoNote: 'Fully functional static demo on Vercel',
-  },
-  {
     slug: 'mytodolistapp',
     name: 'My To-Do List App',
     tagline: 'Full-stack Spring Boot 4 app with Thymeleaf UI + REST API',
