@@ -1,11 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import { projects } from '../data/projects';
+import { byGroup } from '../data/projects';
 import { site } from '../data/site';
 
-const featured = projects.filter((p) => p.featured);
-const others = projects.filter((p) => !p.featured);
+const featured = byGroup('featured');
+const aiEngineering = byGroup('ai-engineering');
+const others = byGroup('more');
 ---
 <Base>
   <section class="py-20 sm:py-28">
@@ -14,6 +15,7 @@ const others = projects.filter((p) => !p.featured);
     <p class="mt-5 max-w-2xl text-lg text-stone-600 dark:text-stone-400">{site.tagline}</p>
     <div class="mt-8 flex flex-wrap gap-3 text-sm">
       <a href="#projects" class="rounded-lg bg-stone-900 px-4 py-2 font-medium text-white hover:bg-stone-700 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white">See projects</a>
+      {site.cv && <a href={site.cv} target="_blank" rel="noopener" class="rounded-lg border border-accent-500 px-4 py-2 font-medium text-accent-600 hover:bg-accent-50 dark:text-accent-400 dark:hover:bg-stone-900">Download CV (PDF)</a>}
       <a href={site.github} target="_blank" rel="noopener" class="rounded-lg border border-stone-300 px-4 py-2 hover:border-stone-500 dark:border-stone-700">GitHub ↗</a>
       {site.linkedin && <a href={site.linkedin} target="_blank" rel="noopener" class="rounded-lg border border-stone-300 px-4 py-2 hover:border-stone-500 dark:border-stone-700">LinkedIn ↗</a>}
       <a href={`mailto:${site.email}`} class="rounded-lg border border-stone-300 px-4 py-2 hover:border-stone-500 dark:border-stone-700">Contact</a>
@@ -25,6 +27,12 @@ const others = projects.filter((p) => !p.featured);
     <p class="mt-1 text-sm text-stone-500">AI + psychology: products where technology serves emotional wellbeing.</p>
     <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {featured.map((p) => <ProjectCard project={p} />)}
+    </div>
+
+    <h2 id="ai-engineering" class="mt-16 scroll-mt-20 text-2xl font-semibold tracking-tight">AI Engineering: Skills &amp; Agents</h2>
+    <p class="mt-1 text-sm text-stone-500">How I make AI agents behave like senior engineers: reusable skills, spec-first workflows and tool-using agents.</p>
+    <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {aiEngineering.map((p) => <ProjectCard project={p} />)}
     </div>
 
     <h2 class="mt-16 text-2xl font-semibold tracking-tight">More projects</h2>

@@ -1,5 +1,7 @@
-export type Category = 'Full-stack' | 'AI' | 'Backend' | 'Frontend';
-export type DemoStatus = 'live' | 'mock' | 'planned';
+export type Category = 'Full-stack' | 'AI' | 'Backend' | 'Frontend' | 'AI Engineering';
+/** 'none' = proyecto sin demo (librerías, agentes CLI): se muestran los enlaces de `links` en su lugar */
+export type DemoStatus = 'live' | 'mock' | 'planned' | 'none';
+export type Group = 'featured' | 'ai-engineering' | 'more';
 
 export interface Project {
   slug: string;
@@ -24,6 +26,12 @@ export interface Project {
   /** Credenciales públicas de demo, si las hay */
   demoCredentials?: { user: string; password: string };
   featured?: boolean;
+  /** Sección de la portada. Si no se indica: 'featured' si featured=true, si no 'more' */
+  group?: Group;
+  /** Enlaces destacados (p.ej. 'Browse the skills') para proyectos sin demo */
+  links?: { label: string; href: string }[];
+  /** Slugs de proyectos relacionados, se muestran al final de la ficha */
+  related?: string[];
 }
 
 export const projects: Project[] = [
@@ -60,7 +68,7 @@ export const projects: Project[] = [
       'Vector memory with pgvector',
       'Designed to never diagnose and to escalate to professionals',
     ],
-    repo: 'jordimorerachamorro/harbor-ai',
+    repo: 'jordi-morera/harbor-ai',
     branch: 'main',
     demoUrl: null,
     demoStatus: 'planned',
@@ -87,6 +95,76 @@ export const projects: Project[] = [
     demoStatus: 'planned',
     demoNote: 'Demo mode with realistic pre-recorded reflections',
     featured: true,
+  },
+  {
+    slug: 'skills-library',
+    name: 'Spring Boot + GenAI Skills Library',
+    tagline: '42 engineering skills that make an AI coding agent reason like a senior engineer',
+    pitch:
+      'A portable capability system for AI coding assistants such as Claude Code. Each skill encodes senior engineering judgement for Spring Boot + GenAI codebases: when to apply it, when not to, how to reason through the problem and how to validate the result. It covers architecture, security, testing, RAG, agents, LLM evaluation and cost.',
+    category: 'AI Engineering',
+    stack: ['Claude Code', 'Agent Skills', 'Spring Boot', 'LLMs', 'RAG', 'AI Agents', 'Python', 'LangChain'],
+    highlights: [
+      'Deterministic workflows over autonomous agents, by default',
+      'LLM output treated as untrusted input in every AI skill',
+      'Self-maintaining: meta-skills to discover, create and review skills',
+    ],
+    repo: 'jordi-morera/springboot-ai-agents',
+    branch: 'main',
+    demoUrl: null,
+    demoStatus: 'none',
+    links: [
+      { label: 'Browse the skills', href: 'https://github.com/jordi-morera/springboot-ai-agents/tree/main/skills' },
+    ],
+    related: ['book-service', 'engineering-intelligence'],
+    group: 'ai-engineering',
+  },
+  {
+    slug: 'engineering-intelligence',
+    name: 'Engineering Intelligence',
+    tagline: 'Spec-first AI agent: validated specifications before any code is written',
+    pitch:
+      'Most AI coding tools jump straight to implementation. This agent does the opposite: it investigates a ticket, writes an evidence-backed specification, critiques and validates it, and only then hands it to implementation. A critical uncertainty results in BLOCKED, never an invented answer.',
+    category: 'AI Engineering',
+    stack: ['Python 3.12', 'OpenAI API', 'Agent Skills', 'YAML contracts', 'pytest'],
+    highlights: [
+      '10 skill contracts + declarative requirement and bug workflows',
+      'Versioned spec schema: facts, assumptions and unknowns kept separate',
+      'Evaluation metrics defined up front; read-only by design',
+    ],
+    repo: 'jordi-morera/engineering-intelligence',
+    branch: 'main',
+    demoUrl: null,
+    demoStatus: 'none',
+    links: [
+      { label: 'See the skill contracts', href: 'https://github.com/jordi-morera/engineering-intelligence/tree/main/skills' },
+      { label: 'See the spec schema', href: 'https://github.com/jordi-morera/engineering-intelligence/blob/main/schemas/engineering-spec.yaml' },
+    ],
+    related: ['skills-library', 'ai-agents'],
+    group: 'ai-engineering',
+  },
+  {
+    slug: 'ai-agents',
+    name: 'AI Agents: PR Review & Jira to PR',
+    tagline: 'Tool-using Claude agents that automate code review and the ticket-to-PR cycle',
+    pitch:
+      'Two agents built directly on the Anthropic tool-use API, without a framework. The PR Review Agent checks a diff for code quality and Acceptance Criteria coverage. The Jira to PR Agent orchestrates the full cycle: it reads the ticket, creates the branch, delegates the code to a coding sub-agent, commits, opens the PR and documents it in Confluence.',
+    category: 'AI Engineering',
+    stack: ['Python', 'Claude API', 'Tool use', 'Jira API', 'Bitbucket API', 'Confluence API', 'pytest'],
+    highlights: [
+      'Orchestrator + coding sub-agent with a bounded tool loop',
+      'AC coverage report: COVERED / PARTIAL / MISSING',
+      'Tools return errors as data so the agent can recover',
+    ],
+    repo: 'jordi-morera/ai-agents',
+    branch: 'main',
+    demoUrl: null,
+    demoStatus: 'none',
+    links: [
+      { label: 'See the example PR it reviews', href: 'https://github.com/jordi-morera/ai-agents/blob/main/examples/example.diff' },
+    ],
+    related: ['engineering-intelligence', 'skills-library'],
+    group: 'ai-engineering',
   },
   {
     slug: 'mytodolistapp',
@@ -118,7 +196,11 @@ export const projects: Project[] = [
     demoStatus: 'planned',
     demoNote: 'Opens Swagger UI. Free tier: first load may take ~1 min',
     demoCredentials: { user: 'admin', password: 'admin123' },
+    related: ['skills-library'],
   },
 ];
 
 export const getProject = (slug: string) => projects.find((p) => p.slug === slug);
+
+export const groupOf = (p: Project): Group => p.group ?? (p.featured ? 'featured' : 'more');
+export const byGroup = (g: Group) => projects.filter((p) => groupOf(p) === g);

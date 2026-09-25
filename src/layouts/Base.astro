@@ -29,7 +29,9 @@ const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.
         <a href="/" class="font-semibold tracking-tight">{site.name}</a>
         <div class="flex gap-5 text-sm text-stone-600 dark:text-stone-400">
           <a href="/#projects" class="hover:text-accent-600 dark:hover:text-accent-400">Projects</a>
+          <a href="/#ai-engineering" class="hidden hover:text-accent-600 sm:inline dark:hover:text-accent-400">AI Engineering</a>
           <a href="/#about" class="hover:text-accent-600 dark:hover:text-accent-400">About</a>
+          {site.cv && <a href={site.cv} target="_blank" rel="noopener" class="hover:text-accent-600 dark:hover:text-accent-400">CV</a>}
           <a href={site.github} target="_blank" rel="noopener" class="hover:text-accent-600 dark:hover:text-accent-400">GitHub</a>
         </div>
       </nav>

@@ -26,7 +26,7 @@ A small full-stack to-do list app built with Spring Boot. It serves a server-ren
 ## Getting Started
 
 ```bash
-git clone https://github.com/jordimorerachamorro/mytodolistapp.git
+git clone https://github.com/jordi-morera/mytodolistapp.git
 cd mytodolistapp
 ./mvnw spring-boot:run
 ```

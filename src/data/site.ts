@@ -6,5 +6,5 @@ export const site = {
   email: 'jordimorera86@gmail.com',
   github: 'https://github.com/jordi-morera',
   linkedin: 'https://www.linkedin.com/in/jordi-morera/',
-  cv: '/cv-jordi-morera.pdf',
+  cv: '/JordiMoreraCV.pdf', // archivo en /public
 };
