@@ -13,7 +13,10 @@ export interface Project {
   /** "usuario/repo" en GitHub. null si aún no está subido */
   repo: string | null;
   branch: string;
+  /** Ruta del README a mostrar. Por defecto 'README.md'. Convención: README.md en inglés, README.es.md en castellano */
   readmePath?: string;
+  /** Secciones del README (texto del encabezado ##) que no se muestran en el portfolio */
+  readmeHideSections?: string[];
   demoUrl: string | null;
   demoStatus: DemoStatus;
   /** Nota corta que se muestra junto al botón de demo */
@@ -29,19 +32,19 @@ export const projects: Project[] = [
     name: 'Calma',
     tagline: 'Humanist emotional-wellbeing web app (Master’s thesis)',
     pitch:
-      'A calm-technology web app for managing anxiety, stress and self-esteem: guided exercises, a private emotional journal, progress tracking and a therapist directory. Built end-to-end on AWS with infrastructure as code.',
+      'A calm-technology web app for managing anxiety, stress and self-esteem: guided exercises, a private emotional journal, progress tracking and a therapist directory. Security by design: Row Level Security in PostgreSQL and server-side validation on every form.',
     category: 'Full-stack',
-    stack: ['Next.js 16', 'React 19', 'TypeScript', 'Tailwind CSS 4', 'AWS Cognito', 'DynamoDB', 'AWS CDK', 'Playwright'],
+    stack: ['Next.js 16', 'React 19', 'Shadcn/ui', 'Zod', 'TypeScript', 'Tailwind CSS 4', 'Supabase', 'Playwright'],
     highlights: [
-      'Auth with Amazon Cognito + JWT verification in middleware',
-      'Serverless persistence on DynamoDB, infra defined with CDK',
+      'Supabase Auth + Row Level Security: each user only sees their own data',
+      'Centralised Zod validation, no PII in logs',
       'E2E tests with Playwright',
     ],
-    repo: 'jordimorerachamorro/tfm-calma-app',
+    repo: 'jordi-morera/tfm-calma-app',
     branch: 'main',
-    demoUrl: null,
-    demoStatus: 'planned',
-    demoNote: 'Demo on Vercel with a shared demo account',
+    demoUrl: 'https://tfm-calma-app.vercel.app',
+    demoStatus: 'live',
+    demoNote: 'Live on Vercel. Sign up with any email to explore the private area',
     featured: true,
   },
   {
@@ -77,8 +80,9 @@ export const projects: Project[] = [
       'Same Flask app runs locally and on Lambda (aws-wsgi)',
       'Bilingual docs (ES / EN)',
     ],
-    repo: 'jordimorerachamorro/diario-reflexivo',
+    repo: 'jordi-morera/diario-reflexivo',
     branch: 'main',
+    readmeHideSections: ['How to explain this in an interview'],
     demoUrl: null,
     demoStatus: 'planned',
     demoNote: 'Demo mode with realistic pre-recorded reflections',
@@ -93,7 +97,7 @@ export const projects: Project[] = [
     category: 'Backend',
     stack: ['Java 25', 'Spring Boot 4.1', 'Spring Data JPA', 'H2', 'Thymeleaf', 'JUnit'],
     highlights: ['REST + server-rendered views on one domain', 'Latest Spring Boot 4 / Jakarta EE', 'Maven Wrapper, zero setup'],
-    repo: 'jordimorerachamorro/mytodolistapp',
+    repo: 'jordi-morera/mytodolistapp',
     branch: 'main',
     demoUrl: null,
     demoStatus: 'planned',
@@ -108,7 +112,7 @@ export const projects: Project[] = [
     category: 'Backend',
     stack: ['Java 25', 'Spring Boot 3.5', 'Spring Security 6', 'Spring Data JPA', 'H2', 'OpenAPI / Swagger'],
     highlights: ['Explore the live API from Swagger UI', 'Records, pattern matching, text blocks', 'Uniform errors via @RestControllerAdvice'],
-    repo: 'jordimorerachamorro/book-service',
+    repo: 'jordi-morera/book-service',
     branch: 'main',
     demoUrl: null,
     demoStatus: 'planned',

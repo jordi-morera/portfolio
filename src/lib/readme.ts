@@ -46,6 +46,31 @@ export function rewriteRelativeUrls(html: string, p: Project): string {
 /** Drop the leading H1 — the page already shows the project name */
 export const stripLeadingH1 = (md: string) => md.replace(/^\s*#\s+[^\n]*\n/, '');
 
+/** Drop language-switch lines like "*[Leer en español](README.md)*" */
+export const stripLanguageLinks = (md: string) =>
+  md.replace(/^\s*\*?\[(?:Leer en español|Read in English|Llegir en català)\]\([^)]*\)\*?\s*$\n?/gim, '');
+
+/** Remove "## <heading>" sections (up to the next heading of the same or higher level) */
+export function stripSections(md: string, headings: string[] = []): string {
+  if (!headings.length) return md;
+  const norm = (t: string) => t.replace(/[^\p{L}\p{N} ]/gu, '').trim().toLowerCase();
+  const targets = new Set(headings.map(norm));
+  const out: string[] = [];
+  let skipLevel = 0;
+  let inFence = false;
+  for (const line of md.split('\n')) {
+    if (/^\s*```/.test(line)) inFence = !inFence;
+    const h = !inFence && line.match(/^(#{1,6})\s+(.*)$/);
+    if (h) {
+      const level = h[1].length;
+      if (skipLevel && level <= skipLevel) skipLevel = 0;
+      if (!skipLevel && targets.has(norm(h[2]))) skipLevel = level;
+    }
+    if (!skipLevel) out.push(line);
+  }
+  return out.join('\n');
+}
+
 export async function loadReadme(p: Project): Promise<Readme> {
   let md = await fetchFromGitHub(p);
   let source: ReadmeSource = 'github';
@@ -54,6 +79,7 @@ export async function loadReadme(p: Project): Promise<Readme> {
     source = md ? 'snapshot' : 'none';
   }
   if (!md) return { html: '', source };
-  const html = await marked.parse(stripLeadingH1(md), { gfm: true });
+  const cleaned = stripSections(stripLanguageLinks(stripLeadingH1(md)), p.readmeHideSections);
+  const html = await marked.parse(cleaned, { gfm: true });
   return { html: rewriteRelativeUrls(html, p), source };
 }

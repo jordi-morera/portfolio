@@ -7,7 +7,7 @@ Objetivo: que cada ficha del portfolio tenga un botón **Live demo** que funcion
 | 0 | **Portfolio** (este repo) | AWS S3 + CloudFront | Estático (Astro) | 1 h |
 | 1 | Diario Reflexivo | Vercel (solo frontend) | Mock: respuestas de Claude pregrabadas | 1–2 h |
 | 2 | Harbor | Vercel (solo `frontend/web`) | Mock: conversación guionizada | 2–3 h |
-| 3 | Calma (TFM) | Vercel | Real, con cuenta demo en Cognito + DynamoDB (free tier AWS) | 1–2 h |
+| 3 | Calma (TFM, `tfm-calma-app`) | Vercel + Supabase | ✅ Ya desplegado | — |
 | 4 | My To-Do List App | Render (Docker, free) | Real (H2 en memoria) | 30 min |
 | 5 | Book Service | Render (Docker, free) | Real, entra directo a Swagger UI | 30 min |
 
@@ -46,13 +46,10 @@ Postgres + pgvector + Redis + Claude no caben en ningún free tier de forma fiab
 - Idea potente para recruiters: un panel lateral "Under the hood" que muestre qué decidió cada una de las 4 capas.
 - En Vercel: *Root Directory* = `frontend/web`.
 
-## 3. Calma → Vercel + AWS free tier
-Ya tienes Cognito, DynamoDB y CDK. Cognito (hasta 10k MAU en el plan Lite/Essentials, revisa condiciones) y DynamoDB on-demand con tráfico de portfolio salen a coste ~0.
-- Despliega la infra con CDK (`infra/`) si no está ya.
-- Crea un **usuario demo** (`demo@calma.app` / contraseña pública) y publícalo en la ficha (`demoCredentials`).
-- Variables de entorno en Vercel: región, User Pool ID, Client ID, tabla DynamoDB y credenciales IAM de **mínimo privilegio** (solo esas tablas).
-- Pon una *AWS Budget alert* a 1 € para dormir tranquilo.
-- Opcional: un cron semanal que limpie las entradas del diario del usuario demo.
+## 3. Calma → ✅ ya en producción
+`tfm-calma-app` (Next.js + Supabase) ya está en https://tfm-calma-app.vercel.app, y `keep_alive.yml` evita que Supabase pause el proyecto.
+- Pendiente opcional: crear un **usuario demo** con credenciales públicas y ponerlo en `demoCredentials`. Así el recruiter no tiene que registrarse (cada paso extra es un recruiter menos).
+- `calma-app` (versión AWS: Cognito + DynamoDB + CDK) queda **fuera del portfolio** mientras esté en construcción. Cuando esté lista, puede tener su propia ficha o sustituir a esta.
 
 ## 4 y 5. Spring Boot (To-Do y Book Service) → Render
 Vercel no ejecuta Java. Render tiene plan gratuito para web services con Docker; el servicio se duerme tras ~15 min sin tráfico y tarda ~1 min en despertar (ya lo avisa la ficha). Alternativa: Koyeb free (1 instancia, 512 MB).

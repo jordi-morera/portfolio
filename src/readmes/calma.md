@@ -1,129 +1,103 @@
-# Calma - Tu espacio de gestión emocional
+# Calma - Your space for emotional wellbeing (Master's Thesis)
 
-**Calma** es una aplicación web diseñada con un enfoque humanista para acompañar a los usuarios en la gestión de sus emociones. Ofrece herramientas prácticas para situaciones de ansiedad, estrés o baja autoestima, facilitando el autoconocimiento y la conexión con terapeutas especializados.
+*[Leer en español](README.es.md)*
+
+> **Master's Thesis - Web Application Development**
+
+**Calma** is a web application designed with a humanistic approach to support users in managing their emotions. It offers practical tools for situations of anxiety, stress or low self-esteem, encouraging self-awareness and making it easier to connect with specialised therapists.
 
 ---
 
-## 📌 1. Descripción General
-Este proyecto integra tecnologías modernas de desarrollo web con principios de "Calm Technology" (diseño no intrusivo). Su objetivo es proporcionar un espacio seguro y accesible donde los usuarios puedan:
-*   Realizar ejercicios guiados de gestión emocional (respiración, mindfulness).
-*   Mantener un **Diario Emocional** privado y seguro.
-*   Registrar su progreso y hábitos.
-*   Consultar un **Directorio de Terapeutas** profesionales.
+## 📌 1. Overview
+This project combines modern web development technologies with "Calm Technology" principles (non-intrusive design). Its goal is to provide a safe and accessible space where users can:
+*   Do guided emotional-management exercises (breathing, mindfulness).
+*   Keep a private and secure **Emotional Journal**.
+*   Track their progress and habits.
+*   Browse a **Therapist Directory** of professionals.
 
-## 🌟 2. Funcionalidades Principales
-Para cumplir con los objetivos del proyecto, la aplicación ofrece las siguientes características clave:
-*   **Autenticación y Seguridad:** Registro, inicio de sesión y recuperación de contraseñas. Acceso protegido a áreas privadas mediante Amazon Cognito y control de acceso a nivel de aplicación.
-*   **Catálogo de Ejercicios Guiados:** Biblioteca de ejercicios categorizados (ansiedad, estrés, autoestima) con instrucciones paso a paso.
-*   **Diario Emocional Privado:** Espacio seguro donde el usuario puede registrar diariamente su estado emocional y pensamientos íntimos.
-*   **Área de Perfil y Progreso:** Seguimiento del historial de ejercicios completados y gestión de datos personales.
-*   **Directorio de Profesionales:** Listado de terapeutas verificados para facilitar la búsqueda de ayuda profesional si el usuario lo requiere.
+## 🌟 2. Key Features
+To meet the project's goals, the application offers the following key features:
+*   **Authentication & Security:** Sign-up, login and password recovery. Private areas are protected with Supabase Auth and RLS.
+*   **Guided Exercise Catalogue:** A library of exercises grouped by category (anxiety, stress, self-esteem) with step-by-step instructions.
+*   **Private Emotional Journal:** A safe space where users can record their emotional state and personal thoughts every day.
+*   **Profile & Progress Area:** History of completed exercises and management of personal data.
+*   **Professional Directory:** A list of verified therapists, making it easier to seek professional help when needed.
 
-## 🛠️ 3. Stack Tecnológico
+## 🛠️ 3. Tech Stack
 *   **Frontend**: [Next.js 16](https://nextjs.org/) (App Router, Server Components).
-*   **Lenguaje**: TypeScript (Tipado estricto para mayor robustez).
-*   **Estilos**: [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn/ui](https://ui.shadcn.com/) (Diseño accesible y responsive).
-*   **Backend / Auth**: Amazon Cognito (auth) + Amazon DynamoDB (datos), vía AWS SDK v3.
-*   **Validación**: [Zod](https://zod.dev/) (Validación de formularios en servidor con tipado estricto).
-*   **Testing**: [Playwright](https://playwright.dev/) (Pruebas E2E).
-*   **Extras**: Soporte PWA (Manifest), SEO optimizado, i18n (Código comentado en español).
-*   **Despliegue**: AWS App Runner (imagen Docker publicada en Amazon ECR).
+*   **Language**: TypeScript (strict typing for robustness).
+*   **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn/ui](https://ui.shadcn.com/) (accessible, responsive design).
+*   **Backend / Auth**: [Supabase](https://supabase.com/) (PostgreSQL, Auth Helpers, RLS).
+*   **Validation**: [Zod](https://zod.dev/) (strictly typed server-side form validation).
+*   **Testing**: [Playwright](https://playwright.dev/) (E2E tests).
+*   **Extras**: PWA support (manifest), SEO optimised, code comments in Spanish.
+*   **Deployment**: Vercel.
 
-## 🔒 4. Seguridad y Arquitectura
-La seguridad es un pilar fundamental en **Calma**, dado el tratamiento de datos sensibles:
-*   **Middleware**: Protección de rutas privadas (`/profile`, `/journal`) mediante `src/middleware.ts`, asegurando que solo usuarios autenticados accedan.
-*   **Control de acceso a nivel de aplicación**: DynamoDB no tiene un equivalente a RLS, así que cada Server Action deriva el `userId` de la sesión de Cognito verificada (nunca de datos enviados por el cliente) y lo usa como partition key en cada lectura/escritura de progreso, perfil y entradas de diario.
-*   **Validación en Servidor**: Esquemas Zod centralizados en `src/lib/schemas.ts` validan todos los formularios antes de interactuar con la base de datos. Los logs nunca exponen PII (emails, nombres de usuario).
-*   **Autenticación**: Gestión de sesiones segura vía Amazon Cognito (JWT en cookies httpOnly).
+## 🔒 4. Security & Architecture
+Security is a core pillar of **Calma**, given that it handles sensitive data:
+*   **Middleware**: Private routes (`/profile`, `/journal`) are protected by `src/middleware.ts`, ensuring only authenticated users can access them.
+*   **Row Level Security (RLS)**: PostgreSQL policies guarantee that each user can only read/write their own progress (`user_progress`), profile (`profiles`) and contact requests (`contact_requests`).
+*   **Server-side Validation**: Centralised Zod schemas in `src/lib/schemas.ts` validate every form before touching the database. Logs never expose PII (emails, usernames).
+*   **Authentication**: Secure session management via Supabase Auth (JWT).
 
-## 🚀 5. Instalación y Ejecución
+## 🚀 5. Installation & Running
 
-### Requisitos Previos
-*   Node.js v20.x.
-*   Cuenta de AWS con un User Pool de Cognito y una tabla de DynamoDB desplegados (ver `infra/`).
+### Prerequisites
+*   Node.js (v18 or later).
+*   A Supabase account (with a project created).
 
-### Pasos
-1.  **Clonar el repositorio**:
+### Steps
+1.  **Clone the repository**:
     ```bash
-    git clone <URL_DEL_REPOSITORIO>
-    cd calma-app
+    git clone <REPOSITORY_URL>
+    cd tfm-calma-app
     ```
 
-2.  **Instalar dependencias**:
+2.  **Install dependencies**:
     ```bash
     npm install
     ```
 
-3.  **Configurar variables de entorno**:
-    Crea un archivo `.env.local` en la raíz:
+3.  **Configure environment variables**:
+    Create a `.env.local` file in the project root:
     ```env
-    AWS_REGION=eu-west-1
-    COGNITO_USER_POOL_ID=tu_user_pool_id
-    COGNITO_CLIENT_ID=tu_app_client_id
-    DYNAMODB_TABLE_NAME=calma-app
-    ```
-    Las credenciales de AWS no se configuran por variable de entorno: en local se usan las credenciales de tu CLI/SSO (`aws configure`), y en despliegue el rol IAM asociado al servicio (App Runner).
-
-4.  **Infraestructura**:
-    El User Pool de Cognito y la tabla de DynamoDB se definen como código en `infra/` (AWS CDK). Despliega con:
-    ```bash
-    cd infra && npm install && npx cdk deploy
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
     ```
 
-5.  **Ejecutar en desarrollo**:
+4.  **Database**:
+    Run the scripts in the `migrations/` folder, in numerical order, in the Supabase SQL Editor to create the tables and policies.
+
+5.  **Run in development**:
     ```bash
     npm run dev
     ```
-    Visita [http://localhost:3000](http://localhost:3000).
+    Open [http://localhost:3000](http://localhost:3000).
 
 ## ✅ 6. Testing
-El proyecto cuenta con una suite de pruebas End-to-End (E2E) con Playwright para verificar los flujos críticos (Navegación, Auth, Carga).
+The project includes an End-to-End (E2E) test suite with Playwright covering the critical flows (navigation, auth, loading).
 
-Ejecutar tests:
+Run the tests:
 ```bash
 npx playwright test
 ```
 
-## 📁 7. Estructura del Proyecto
-*   `src/app`: Rutas y páginas (App Router).
+## 📁 7. Project Structure
+*   `src/app`: Routes and pages (App Router).
     *   `(auth)`: Login/Register.
-    *   `exercises`: Catálogo y detalle (con lógica de completado).
-    *   `journal`: Diario emocional privado (protegido por RLS).
-    *   `profile`: Área privada del usuario.
-    *   `therapists`: Directorio de profesionales.
-*   `src/components`: UI Kit reutilizable (Navbar, Cards, Alerts).
-*   `src/lib`: Esquemas de validación Zod centralizados (`schemas.ts`).
-*   `src/utils`: Clientes de Cognito y DynamoDB, sesión y middleware de auth.
-*   `src/middleware.ts`: Barrera de seguridad para rutas protegidas.
-*   `infra/`: Stack de AWS CDK que define el User Pool de Cognito y la tabla de DynamoDB.
-*   `migrations/` y `db_schema.sql`: esquema histórico de Postgres/Supabase (ya no usado en producción, se conserva como referencia).
-*   `tests/`: Tests E2E.
+    *   `exercises`: Catalogue and detail (with completion logic).
+    *   `journal`: Private emotional journal (protected by RLS).
+    *   `profile`: User's private area.
+    *   `therapists`: Professional directory.
+*   `src/components`: Reusable UI kit (Navbar, Cards, Alerts).
+*   `src/lib`: Centralised Zod validation schemas (`schemas.ts`).
+*   `src/utils`: Supabase clients (server, client, middleware).
+*   `src/middleware.ts`: Security barrier for protected routes.
+*   `migrations/`: Ordered SQL scripts to apply the schema in Supabase.
+*   `tests/`: E2E tests.
 
-## 🌐 8. Despliegue
+## 📄 8. Presentation
+The script and outline for the thesis defence presentation are in [SLIDES.md](./SLIDES.md) (in Spanish).
 
-La aplicación se despliega en **AWS App Runner** a partir de una imagen Docker (build multi-stage con `output: "standalone"` de Next.js), publicada en Amazon ECR. El pipeline de CI/CD (`.github/workflows/deploy.yml`) construye y sube la imagen a ECR en cada push a `main`; App Runner tiene el auto-despliegue activado, por lo que despliega automáticamente la nueva imagen.
-
-### Build y ejecución local con Docker
-```bash
-docker build -t calma-app .
-
-docker run -p 3000:3000 \
-  -e AWS_REGION=eu-west-1 \
-  -e COGNITO_USER_POOL_ID=tu_user_pool_id \
-  -e COGNITO_CLIENT_ID=tu_app_client_id \
-  -e DYNAMODB_TABLE_NAME=calma-app \
-  calma-app
-```
-
-> Estas variables ya no son `NEXT_PUBLIC_*`: solo se leen en el servidor, por lo que solo hace falta inyectarlas en tiempo de ejecución (`-e`), no en el build.
-
-### Health check
-La ruta `/api/health` expone un endpoint de estado (`{"status":"ok"}`) usado por el health check de App Runner.
-
-### Configuración en AWS (resumen)
-*   **ECR**: repositorio `calma-app` con la imagen construida.
-*   **App Runner**: servicio con origen "Container registry" → ECR, auto-deploy activado, health check en `/api/health`, variables de entorno `AWS_REGION`, `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID`, `DYNAMODB_TABLE_NAME`.
-*   **Rol de instancia de App Runner**: necesita permisos `dynamodb:GetItem/PutItem/DeleteItem/Query` sobre la tabla y `cognito-idp:InitiateAuth/SignUp/ConfirmSignUp/ForgotPassword/ConfirmForgotPassword/ChangePassword/GlobalSignOut` sobre el User Pool — sin claves de acceso estáticas.
-*   **IAM**: rol OIDC para GitHub Actions con permisos mínimos sobre el repositorio ECR (sin claves de acceso estáticas).
-*   **Cognito + DynamoDB**: aprovisionados vía `infra/` (AWS CDK).
-*   **Dominio propio** (opcional): Route53 + ACM.
+## 🌐 9. Deployment
+Production URL (Demo): [https://tfm-calma-app.vercel.app](https://tfm-calma-app.vercel.app)
